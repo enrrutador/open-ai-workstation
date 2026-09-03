@@ -1,10 +1,10 @@
 /**
- * OPEN AI WORKSTATION - Service Worker
+ * COLAB WORKSTATION - Service Worker
  * Offline shell + cache of static assets.
  * API calls are never cached.
  */
 
-const CACHE_NAME = 'oai-ws-v1';
+const CACHE_NAME = 'cw-v2';
 const SHELL = [
   './',
   './index.html',
@@ -35,12 +35,10 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
 
-  // Never cache API or cross-origin orchestrator calls
   if (url.pathname.startsWith('/api/') || event.request.method !== 'GET') {
     return;
   }
 
-  // Network-first for HTML, cache-first for assets
   if (event.request.destination === 'document' || url.pathname.endsWith('.html')) {
     event.respondWith(
       fetch(event.request)
