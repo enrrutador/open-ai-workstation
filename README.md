@@ -1,91 +1,119 @@
-# OPEN AI WORKSTATION
+# COLAB WORKSTATION
 
-PWA móvil-first para el **Orquestador Universal de Google Colab**.
+**Capa universal de administración para notebooks de Google Colab.**
 
-Consola profesional oscura y minimalista para cargar, ejecutar, detener, configurar y administrar **cualquier** cuaderno `.ipynb` a través de un backend común.
+No es un IDE acoplado a un proyecto concreto. Es una PWA mobile-first + un Orquestador Universal que corre dentro de Colab y permite cargar, analizar, configurar, ejecutar y administrar **cualquier** `.ipynb`.
 
-> OpenCode (u cualquier otro proyecto) es solo un caso de uso. El frontend no está acoplado a ningún notebook específico.
+```
+Usuario (PWA)
+    ↓ HTTP
+Orquestador Universal (Colab)
+    ↓
+Cualquier notebook .ipynb
+```
 
 ## Características
 
-- **PWA real**: instalable en Android, iOS, Windows, macOS, Linux
-- Diseño mobile-first + sidebar en desktop
-- Estado real de Colab / Drive / Orquestador
-- Lista de proyectos (cuadernos) con control total
-- Carga y análisis de cualquier `.ipynb`
-- Sistema de manifest para APIs, dependencias y servicios
-- Gestión segura de credenciales (nunca se guardan en el frontend)
-- Servicios activos con URLs dinámicas
-- Terminal del runtime
+- PWA instalable (iPhone, Android, desktop)
+- Mobile-first + sidebar en desktop
+- Estado real: Colab / Drive / Orquestador
+- **Cuadernos** genéricos (no “proyectos” de un proveedor)
+- Carga y análisis automático de `.ipynb`
+- Manifest opcional `colab-workstation.json`
+- Credenciales seguras (nunca en frontend ni en `/api/status`)
+- Servicios detectados dinámicamente
 - Explorador de archivos del workspace
-- Polling de `/api/status` (preparado para WebSocket/SSE)
-- Offline shell vía Service Worker
+- Terminal web
+- Persistencia en Google Drive
+- Watchdog de procesos
+- Compatible con GitHub Pages (frontend estático)
 
-## Estructura
-
-```
-open-ai-workstation/
-├── index.html
-├── manifest.json
-├── sw.js
-├── css/styles.css
-├── js/
-│   ├── api.js      # Cliente REST del orquestador
-│   └── app.js      # Lógica de la UI
-└── icons/
-    ├── icon-192.svg
-    ├── icon-512.svg
-    └── (png opcional)
-```
-
-## Cómo usar
-
-1. Serví la carpeta con cualquier servidor estático (o desde Colab/ngrok).
-2. Abrí la app en el navegador.
-3. En la pantalla inicial ingresá la **URL del Orquestador** (ej. `https://xxxx.ngrok-free.app`).
-4. La app consulta los endpoints reales del backend.
-
-### Endpoints esperados (mínimos)
+## Arquitectura
 
 ```
-GET  /api/status
-GET  /api/projects
-POST /api/projects
-GET  /api/projects/{id}
-POST /api/projects/{id}/start
-POST /api/projects/{id}/stop
-POST /api/projects/{id}/restart
-POST /api/projects/{id}/save
-GET  /api/projects/{id}/services
-POST /api/projects/{id}/credentials
-GET  /api/services
-GET  /api/files
-POST /api/files/upload
-DELETE /api/files
-POST /api/terminal
-POST /api/projects/analyze
+frontend/          → PWA (HTML/CSS/JS) en GitHub Pages o estático
+orchestrator/      → FastAPI que corre en Colab
+colab/             → ORCHESTRATOR.ipynb (punto de entrada)
+examples/          → notebook de ejemplo + manifest
+docs/              → API y manifest
+schemas/           → JSON Schema del manifest
 ```
 
-Si un endpoint no existe o falla, la interfaz muestra **«No disponible»** (nunca inventa datos).
+## Inicio rápido
+
+### 1. Lanzar el orquestador en Colab
+
+1. Abrí [`colab/ORCHESTRATOR.ipynb`](colab/ORCHESTRATOR.ipynb) en Google Colab.
+2. Ejecutá todas las celdas.
+3. Copiá la URL pública (ngrok / túnel) que imprime el notebook.
+
+### 2. Abrir la PWA
+
+- GitHub Pages del repo, o
+- `npx serve .` / `python -m http.server 8080` en la raíz del frontend.
+
+Pegá la URL del orquestador en la pantalla de conexión.
+
+### 3. Cargar un cuaderno
+
+1. **Cargar** → seleccioná cualquier `.ipynb`
+2. El orquestador lo analiza
+3. Configurá credenciales si hace falta
+4. **Iniciar** → servicios detectados aparecen en **Servicios**
+
+### 4. Ejemplo incluido
+
+```
+examples/example-notebook/
+  example.ipynb
+  colab-workstation.json
+```
+
+Levanta un servidor HTTP de prueba en el puerto 8766.
+
+## API (resumen)
+
+| Método | Ruta | Descripción |
+|--------|------|-------------|
+| GET | `/api/health` | Salud |
+| GET | `/api/status` | Estado Colab/Drive/Orq + contadores |
+| GET/POST | `/api/notebooks` | Listar / subir |
+| POST | `/api/notebooks/{id}/start\|stop\|restart\|save` | Control |
+| POST | `/api/notebooks/analyze` | Analizar sin guardar |
+| GET | `/api/services` | Servicios activos |
+| GET | `/api/files` | Explorador |
+| POST | `/api/terminal` | Ejecutar comando |
+
+Documentación completa: [`docs/api.md`](docs/api.md)
+
+## Manifest
+
+Ver [`docs/notebook-manifest.md`](docs/notebook-manifest.md).
+
+El manifest es **opcional**. Sin él, el analizador infiere imports, `pip install`, puertos y pistas de credenciales.
+
+## Seguridad
+
+- Los secretos **nunca** se guardan en `localStorage`, HTML, JS ni se devuelven por la API de status.
+- El frontend solo recibe `{ "configured": true }`.
+- El Service Worker no cachea respuestas de API.
+
+## Desarrollo local del orquestador
+
+```bash
+pip install -r requirements.txt
+export CW_WORKSPACE=/tmp/cw_workspace
+python -m orchestrator.main
+# o: uvicorn orchestrator.main:app --host 0.0.0.0 --port 8765
+```
 
 ## Principios
 
-- El backend proporciona capacidades universales.
-- Cada proyecto (notebook + manifest) define qué necesita.
-- Cero hardcode de proveedores, puertos o APIs específicas.
-- Las claves API nunca se almacenan en HTML, JS, localStorage ni se devuelven en `/api/status`.
+1. El notebook define qué necesita.
+2. COLAB WORKSTATION provee la infraestructura.
+3. Cero hardcode de proveedores, OpenCode, NVIDIA, Gradio, etc. como categorías de producto.
+4. Datos reales del backend — sin mocks.
 
-## Desarrollo local
+## Licencia
 
-```bash
-# Cualquier servidor estático
-npx serve .
-# o
-python -m http.server 8080
-```
-
-Luego abrí `http://localhost:8080`.
-
-## Versión
-
-v1.0 — Frontend listo para conectar al Orquestador Universal V7 de Google Colab.
+Ver repositorio.
