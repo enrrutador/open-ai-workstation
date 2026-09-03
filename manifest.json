@@ -1,7 +1,7 @@
 {
-  "name": "OPEN AI WORKSTATION",
-  "short_name": "AI Workstation",
-  "description": "Consola universal para orquestar proyectos de IA en Google Colab",
+  "name": "COLAB WORKSTATION",
+  "short_name": "Colab WS",
+  "description": "Consola universal para administrar cualquier cuaderno .ipynb en Google Colab",
   "start_url": "./index.html",
   "display": "standalone",
   "orientation": "any",
@@ -35,6 +35,5 @@
     }
   ],
   "categories": ["productivity", "developer", "utilities"],
-  "screenshots": [],
   "prefer_related_applications": false
 }
