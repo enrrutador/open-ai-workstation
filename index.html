@@ -4,12 +4,12 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <meta name="theme-color" content="#0a0a0f" />
-  <meta name="description" content="OPEN AI WORKSTATION - Consola móvil para orquestar proyectos de IA en Google Colab" />
+  <meta name="description" content="COLAB WORKSTATION - Consola móvil para orquestar cuadernos de IA en Google Colab" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="apple-mobile-web-app-title" content="AI Workstation" />
+  <meta name="apple-mobile-web-app-title" content="COLAB WORKSTATION" />
   
-  <title>OPEN AI WORKSTATION</title>
+  <title>COLAB WORKSTATION</title>
   
   <link rel="manifest" href="manifest.json" />
   <link rel="icon" type="image/png" href="icons/icon-192.png" />
@@ -25,12 +25,11 @@
 </head>
 <body>
   <div id="app">
-    <!-- Splash / First Run -->
     <div id="screen-splash" class="screen active">
       <div class="splash-content">
         <div class="logo-large">
           <div class="logo-icon">◈</div>
-          <h1>OPEN AI<br>WORKSTATION</h1>
+          <h1>COLAB<br>WORKSTATION</h1>
         </div>
         <p class="splash-subtitle">Consola universal para Google Colab</p>
         
@@ -50,14 +49,12 @@
       </div>
     </div>
 
-    <!-- Main App Shell -->
     <div id="screen-main" class="screen">
-      <!-- Desktop Sidebar -->
       <aside id="sidebar" class="sidebar">
         <div class="sidebar-header">
           <div class="logo-small">
             <span class="logo-icon">◈</span>
-            <span class="logo-text">AI WORKSTATION</span>
+            <span class="logo-text">COLAB WORKSTATION</span>
           </div>
         </div>
         <nav class="sidebar-nav">
@@ -98,9 +95,7 @@
         </div>
       </aside>
 
-      <!-- Main Content Area -->
       <main id="main-content" class="main-content">
-        <!-- Header (mobile + desktop) -->
         <header class="app-header">
           <div class="header-left">
             <h2 id="view-title">Inicio</h2>
@@ -120,12 +115,10 @@
           </div>
         </header>
 
-        <!-- Views Container -->
         <div class="views">
-          <!-- HOME VIEW -->
           <section id="view-home" class="view active">
             <div class="home-hero">
-              <h1 class="app-title">OPEN AI WORKSTATION</h1>
+              <h1 class="app-title">COLAB WORKSTATION</h1>
               <div class="status-row" id="home-status-row">
                 <div class="status-card" data-service="colab">
                   <span class="status-dot offline"></span>
@@ -173,7 +166,6 @@
             </div>
           </section>
 
-          <!-- NOTEBOOKS VIEW -->
           <section id="view-notebooks" class="view">
             <div class="view-header">
               <h3>Mis Cuadernos</h3>
@@ -184,7 +176,6 @@
             </div>
           </section>
 
-          <!-- LOAD VIEW -->
           <section id="view-load" class="view">
             <div class="view-header">
               <h3>Cargar Cuaderno</h3>
@@ -210,7 +201,6 @@
             </div>
           </section>
 
-          <!-- SERVICES VIEW -->
           <section id="view-services" class="view">
             <div class="view-header">
               <h3>Servicios Activos</h3>
@@ -221,7 +211,6 @@
             </div>
           </section>
 
-          <!-- TERMINAL VIEW -->
           <section id="view-terminal" class="view">
             <div class="view-header">
               <h3>Terminal</h3>
@@ -236,7 +225,6 @@
             </div>
           </section>
 
-          <!-- FILES VIEW -->
           <section id="view-files" class="view">
             <div class="view-header">
               <h3>Archivos</h3>
@@ -256,7 +244,6 @@
             </div>
           </section>
 
-          <!-- SETTINGS VIEW -->
           <section id="view-settings" class="view">
             <div class="view-header">
               <h3>Configuración</h3>
@@ -284,27 +271,24 @@
 
               <div class="settings-group">
                 <h4>Acerca de</h4>
-                <p class="about-text">OPEN AI WORKSTATION v1.0<br>
-                Frontend para el Orquestador Universal de Google Colab.<br>
-                No acoplado a ningún proyecto específico.</p>
+                <p class="about-text">COLAB WORKSTATION v1.0<br>
+                Capa universal de administración para notebooks de Google Colab.<br>
+                No acoplado a ningún notebook específico.</p>
               </div>
             </div>
           </section>
 
-          <!-- PROJECT DETAIL VIEW -->
-          <section id="view-project" class="view">
+          <section id="view-notebook" class="view">
             <div class="view-header">
-              <button class="btn btn-sm btn-ghost" id="btn-back-projects">← Volver</button>
-              <h3 id="project-title">Proyecto</h3>
+              <button class="btn btn-sm btn-ghost" id="btn-back-notebooks">← Volver</button>
+              <h3 id="notebook-title">Cuaderno</h3>
             </div>
-            <div id="project-detail" class="project-detail">
-              <!-- filled dynamically -->
+            <div id="notebook-detail" class="project-detail">
             </div>
           </section>
         </div>
       </main>
 
-      <!-- Mobile Bottom Navigation -->
       <nav id="bottom-nav" class="bottom-nav">
         <button class="nav-item active" data-view="home">
           <span class="nav-icon">⌂</span>
@@ -328,7 +312,6 @@
         </button>
       </nav>
 
-      <!-- More menu (mobile) -->
       <div id="more-menu" class="more-menu hidden">
         <button data-view="terminal">💻 Terminal</button>
         <button data-view="files">📁 Archivos</button>
@@ -336,7 +319,6 @@
       </div>
     </div>
 
-    <!-- Toast notifications -->
     <div id="toast-container"></div>
   </div>
 
