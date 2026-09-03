@@ -1,7 +1,7 @@
 /**
- * OPEN AI WORKSTATION - API Client
+ * COLAB WORKSTATION - API Client
  * Communicates with the Universal Orchestrator backend.
- * Never stores secrets. Never assumes project-specific APIs.
+ * Never stores secrets. Never assumes notebook-specific APIs.
  */
 
 class OrchestratorAPI {
@@ -23,6 +23,16 @@ class OrchestratorAPI {
 
   isConfigured() {
     return !!this.baseUrl;
+  }
+
+  setPollInterval(seconds) {
+    const s = Math.max(2, Math.min(60, parseInt(seconds, 10) || 5));
+    this.pollInterval = s * 1000;
+    localStorage.setItem('poll_interval', String(s));
+  }
+
+  getPollInterval() {
+    return Math.round(this.pollInterval / 1000);
   }
 
   async _request(method, path, body = null, options = {}) {
@@ -78,61 +88,60 @@ class OrchestratorAPI {
     }
   }
 
-  // —— Status ——
   async getStatus() {
     const data = await this._request('GET', '/api/status');
     this._statusCache = data;
     return data;
   }
 
-  // —— Projects ——
-  async getProjects() {
-    return this._request('GET', '/api/projects');
+  async getHealth() {
+    return this._request('GET', '/api/health');
   }
 
-  async getProject(id) {
-    return this._request('GET', `/api/projects/${encodeURIComponent(id)}`);
+  async getNotebooks() {
+    return this._request('GET', '/api/notebooks');
   }
 
-  async createProject(payload) {
-    return this._request('POST', '/api/projects', payload);
+  async getNotebook(id) {
+    return this._request('GET', `/api/notebooks/${encodeURIComponent(id)}`);
   }
 
-  async startProject(id) {
-    return this._request('POST', `/api/projects/${encodeURIComponent(id)}/start`);
+  async startNotebook(id) {
+    return this._request('POST', `/api/notebooks/${encodeURIComponent(id)}/start`);
   }
 
-  async stopProject(id) {
-    return this._request('POST', `/api/projects/${encodeURIComponent(id)}/stop`);
+  async stopNotebook(id) {
+    return this._request('POST', `/api/notebooks/${encodeURIComponent(id)}/stop`);
   }
 
-  async restartProject(id) {
-    return this._request('POST', `/api/projects/${encodeURIComponent(id)}/restart`);
+  async restartNotebook(id) {
+    return this._request('POST', `/api/notebooks/${encodeURIComponent(id)}/restart`);
   }
 
-  async saveProject(id) {
-    return this._request('POST', `/api/projects/${encodeURIComponent(id)}/save`);
+  async saveNotebook(id) {
+    return this._request('POST', `/api/notebooks/${encodeURIComponent(id)}/save`);
   }
 
-  async getProjectServices(id) {
-    return this._request('GET', `/api/projects/${encodeURIComponent(id)}/services`);
+  async getNotebookServices(id) {
+    return this._request('GET', `/api/notebooks/${encodeURIComponent(id)}/services`);
   }
 
-  // —— Credentials (never returned in full) ——
-  async setCredentials(projectId, credentials) {
-    return this._request('POST', `/api/projects/${encodeURIComponent(projectId)}/credentials`, credentials);
+  async getNotebookLogs(id, lines = 200) {
+    return this._request('GET', `/api/notebooks/${encodeURIComponent(id)}/logs?lines=${lines}`);
   }
 
-  async deleteCredentials(projectId, name) {
-    return this._request('DELETE', `/api/projects/${encodeURIComponent(projectId)}/credentials`, { name });
+  async setCredentials(notebookId, credentials) {
+    return this._request('POST', `/api/notebooks/${encodeURIComponent(notebookId)}/credentials`, credentials);
   }
 
-  // —— Services (global) ——
+  async deleteCredentials(notebookId, name) {
+    return this._request('DELETE', `/api/notebooks/${encodeURIComponent(notebookId)}/credentials`, { name });
+  }
+
   async getServices() {
     return this._request('GET', '/api/services');
   }
 
-  // —— Files ——
   async getFiles(path = '/') {
     const q = path ? `?path=${encodeURIComponent(path)}` : '';
     return this._request('GET', `/api/files${q}`);
@@ -153,23 +162,21 @@ class OrchestratorAPI {
     return this._request('POST', '/api/files/mkdir', { path });
   }
 
-  // —— Terminal ——
   async execTerminal(command) {
     return this._request('POST', '/api/terminal', { command });
   }
 
-  // —— Notebook analysis / upload ——
   async analyzeNotebook(file) {
     const form = new FormData();
     form.append('notebook', file);
-    return this._request('POST', '/api/projects/analyze', form);
+    return this._request('POST', '/api/notebooks/analyze', form);
   }
 
   async uploadNotebook(file, name) {
     const form = new FormData();
     form.append('notebook', file);
     if (name) form.append('name', name);
-    return this._request('POST', '/api/projects', form);
+    return this._request('POST', '/api/notebooks', form);
   }
 }
 
